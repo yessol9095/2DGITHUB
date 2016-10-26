@@ -51,10 +51,10 @@ class Player:
         self.b_jump = False
         self.frame_jump = 0
 
-        if Player.image == None:
-            Player.image = load_image('Walking.png')
-        if Player.jump == None:
-            Player.jump = load_image('jump.png')
+        if self.image == None:
+            self.image = load_image('Walking.png')
+        if self.jump == None:
+            self.jump = load_image('jump.png')
 
     def update(self):
         if self.right == True:
