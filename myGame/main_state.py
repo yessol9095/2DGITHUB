@@ -34,15 +34,15 @@ class Background:
 
 class Player:
     image = None
+    LEFT_RUN, RIGHT_RUN, LEFT_STAND, RIGHT_STAND = 0, 1, 2, 3
     jump = None
     b_jump = False
-    right = True
-    left = False
 
     def __init__(self):
         self.x, self.y = 90, 195
         self.fy =  0
         self.frame = 0
+        self.state = self.RIGHT_STAND
         self.image = load_image('Walking.png')
 
         # jump
@@ -56,39 +56,50 @@ class Player:
         if self.jump == None:
             self.jump = load_image('jump.png')
 
+    def handle_events(self, event):
+        if event.key ==  SDLK_UP:
+            self.b_jump = True
+            if self.state in (self.RIGHT_STAND,self.RIGHT_RUN,):
+                self.frame_jump = 0
+            elif self.state in (self.LEFT_STAND,self.LEFT_RUN,):
+                self.frame_jump = 1
+        elif (event.type, event.key) == (SDL_KEYDOWN, SDLK_RIGHT):
+            if self.state in (self.LEFT_RUN, self.RIGHT_STAND,self.LEFT_STAND):
+                self.state = self.RIGHT_RUN
+        elif (event.type, event.key) == (SDL_KEYDOWN, SDLK_LEFT):
+            if self.state in (self.RIGHT_RUN, self.LEFT_STAND, self.RIGHT_STAND):
+                self.state = self.LEFT_RUN
+        elif (event.type, event.key) == (SDL_KEYUP, SDLK_LEFT):
+            if self.state in (self.LEFT_RUN,):
+                self.state = self.LEFT_STAND
+        elif (event.type, event.key) == (SDL_KEYUP, SDLK_RIGHT):
+            if self.state in (self.RIGHT_RUN,):
+                self.state = self.RIGHT_STAND
+        pass
     def update(self):
-        if self.right == True:
+        if self.state == self.RIGHT_RUN:
+            self.frame = (self.frame + 1) % 3
             self.x += 10
             self.fy = 0
-            self.right = False
-        elif self.left == True:
+        elif self.state == self.LEFT_RUN:
+            self.frame = (self.frame + 1) % 3
             self.x -= 10
             self.fy = 90
-            self.left = False
-        if self.b_jump == True:
+        elif self.b_jump == True:
             self.j_time += 0.5
             self.y -= -15 + (0.98 * self.j_time * self.j_time) / 2
             if self.y <= 195:
                 self.j_time = 0
                 self.b_jump = False
                 self.y = 195
-
         delay(0.04)
+
     def draw(self):
         if self.b_jump == True:
             self.jump.clip_draw(0, self.frame_jump * 100, 100, 100, self.x, self.y)
         else :
             self.image.clip_draw(self.frame * 94 , self.fy, 94, 90, self.x, self.y)
 
-    def handle_events(self,event):
-        if event.type == SDL_KEYDOWN:
-            self.frame = (self.frame + 1) % 3
-            if event.key == SDLK_UP:
-                self.b_jump = True
-            elif event.key == SDLK_RIGHT:
-                self.right = True
-            elif event.key == SDLK_LEFT:
-                self.left = True
 
 
 
@@ -114,15 +125,16 @@ def resume():
 
 
 def handle_events():
+    global player
     events = get_events()
     for event in events:
         if event.type == SDL_QUIT:
             exit()
-        if event.type == SDL_KEYDOWN and event.key == SDLK_ESCAPE:
+        elif event.type == SDL_KEYDOWN and event.key == SDLK_ESCAPE:
             exit()
         else:
            player.handle_events(event)
-
+        pass
 
 def update():
     player.update()
