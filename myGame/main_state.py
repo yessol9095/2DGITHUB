@@ -10,7 +10,7 @@ import title_state
 
 
 name = "MainState"
-
+current_time = get_time()
 player = None
 background = None
 tile = None
@@ -33,6 +33,17 @@ class Background:
         self.image.clip_draw(0, 0, 2250, 658, self.bx, self.by)
 
 class Player:
+
+    PIXEL_PER_METER = (10.0 / 0.3)
+    RUN_SPEED_KMPH = 20.0
+    RUN_SPEED_MPM = (RUN_SPEED_KMPH * 1000.0 / 60.0)
+    RUN_SPEED_MPS = (RUN_SPEED_MPM / 60.0)
+    RUN_SPEED_PPS = (RUN_SPEED_MPS * PIXEL_PER_METER)
+
+    TIME_PER_ACTION = 0.5
+    ACTION_PER_TIME = 1.0 / TIME_PER_ACTION
+    FRAMES_PER_ACTION = 8
+
     image = None
     LEFT_RUN, RIGHT_RUN, LEFT_STAND, RIGHT_STAND, JUMP = 0, 1, 2, 3, 4
     jump = None
@@ -77,14 +88,19 @@ class Player:
             if self.state in (self.RIGHT_RUN,):
                 self.state = self.RIGHT_STAND
         pass
-    def update(self):
+
+
+    def update(self, frame_time):
+        distance = Player.RUN_SPEED_PPS * frame_time
+        self.total_frames += Player.FRAMES_PER_ACTION * Player.ACTION_PER_TIME * frame_time
+
         if self.state == self.RIGHT_RUN:
-            self.frame = (self.frame + 1) % 3
-            self.x += 10
+            self.frame = int(self.total_frames) % 3
+            self.x += (self.dir * distance)
             self.fy = 0
         elif self.state == self.LEFT_RUN:
-            self.frame = (self.frame + 1) % 3
-            self.x -= 10
+            self.frame = int(self.total_frames) % 3
+            self.x -= (self.dir * distance)
             self.fy = 90
         elif self.state == self.JUMP:
             self.b_jump = True
@@ -93,6 +109,10 @@ class Player:
             if self.y <= 195:
                 self.j_time = 0
                 self.b_jump = False
+                if self.fy ==0 :
+                    self.state = self.RIGHT_STAND
+                else:
+                    self.state = self.LEFT_STAND
                 self.y = 195
 
         delay(0.04)
@@ -139,17 +159,30 @@ def handle_events():
            player.handle_events(event)
         pass
 
+current_time = 0.0
+
 def update():
     player.update()
 
 
+def get_frame_time():
+
+    global current_time
+
+    frame_time = get_time() - current_time
+    current_time += frame_time
+    return frame_time
+
 def draw():
+    global current_time
+
     clear_canvas()
     background.draw()
     tile.draw()
     player.draw()
     update_canvas()
 
+    current_time += frame_time
 
 
 
