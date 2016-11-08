@@ -10,6 +10,7 @@ import title_state
 
 
 name = "MainState"
+current_time = get_time()
 player = None
 background = None
 tile = None
@@ -150,16 +151,24 @@ def resume():
 def handle_events(frame_time):
     global player
     events = get_events()
+    frame_time = get_frame_time()
     for event in events:
         if event.type == SDL_QUIT:
             exit()
         elif event.type == SDL_KEYDOWN and event.key == SDLK_ESCAPE:
             exit()
         else:
-           player.handle_events(event,frame_time)
+           player.handle_events(event)
         pass
 
 current_time = 0.0
+
+def update(frame_time):
+    global current_time
+    frame_time = get_frame_time()
+    handle_events(frame_time)
+    player.update(frame_time)
+
 def get_frame_time():
 
     global current_time
@@ -167,16 +176,6 @@ def get_frame_time():
     frame_time = get_time() - current_time
     current_time += frame_time
     return frame_time
-
-def update():
-    global current_time
-
-    current_time = get_time()
-    frame_time = get_frame_time()
-    player.update(frame_time)
-    handle_events(frame_time)
-
-
 
 def draw():
     global current_time
@@ -186,9 +185,4 @@ def draw():
     tile.draw()
     player.draw()
     update_canvas()
-
-
-
-
-
 
