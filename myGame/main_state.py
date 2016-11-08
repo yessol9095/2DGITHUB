@@ -10,7 +10,6 @@ import title_state
 
 
 name = "MainState"
-current_time = get_time()
 player = None
 background = None
 tile = None
@@ -53,7 +52,7 @@ class Player:
         self.x, self.y = 90, 195
         self.fy =  0
         self.frame = 0
-        self.total_frame = 0.0
+        self.total_frames = 0.0
         self.state = self.RIGHT_STAND
         self.image = load_image('Walking.png')
 
@@ -97,11 +96,11 @@ class Player:
 
         if self.state == self.RIGHT_RUN:
             self.frame = int(self.total_frames) % 3
-            self.x += (self.dir * distance)
+            self.x += (distance)
             self.fy = 0
         elif self.state == self.LEFT_RUN:
             self.frame = int(self.total_frames) % 3
-            self.x -= (self.dir * distance)
+            self.x -= (distance)
             self.fy = 90
         elif self.state == self.JUMP:
             self.b_jump = True
@@ -148,11 +147,9 @@ def resume():
     pass
 
 
-def handle_events():
+def handle_events(frame_time):
     global player
     events = get_events()
-    global current_time
-    frame_time = get_frame_time()
     for event in events:
         if event.type == SDL_QUIT:
             exit()
@@ -163,13 +160,6 @@ def handle_events():
         pass
 
 current_time = 0.0
-
-def update():
-    global current_time
-    frame_time = get_frame_time()
-    handle_events(frame_time)
-    player.update(frame_time)
-
 def get_frame_time():
 
     global current_time
@@ -177,6 +167,16 @@ def get_frame_time():
     frame_time = get_time() - current_time
     current_time += frame_time
     return frame_time
+
+def update():
+    global current_time
+
+    current_time = get_time()
+    frame_time = get_frame_time()
+    player.update(frame_time)
+    handle_events(frame_time)
+
+
 
 def draw():
     global current_time
