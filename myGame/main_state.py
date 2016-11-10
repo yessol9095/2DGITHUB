@@ -10,7 +10,7 @@ import title_state
 
 
 name = "MainState"
-
+current_time = get_time()
 player = None
 background = None
 tile = None
