@@ -1,0 +1,65 @@
+import random
+
+from pico2d import *
+
+class Sheep:
+    PIXEL_PER_METER = (10.0 / 0.3)           # 10 pixel 30 cm
+    RUN_SPEED_KMPH = 20.0                    # Km / Hour
+    RUN_SPEED_MPM = (RUN_SPEED_KMPH * 1000.0 / 60.0)
+    RUN_SPEED_MPS = (RUN_SPEED_MPM / 60.0)
+    RUN_SPEED_PPS = (RUN_SPEED_MPS * PIXEL_PER_METER)
+
+    TIME_PER_ACTION = 0.5
+    ACTION_PER_TIME = 1.0 / TIME_PER_ACTION
+    FRAMES_PER_ACTION = 3
+
+    image = None
+
+    def __init__(self):
+        self.x, self.y = random.randint(900, 1300), 200
+        self.frame = 0
+        self.dir = -1
+        self.fy = 0
+        #
+        self.life_time = 0.0
+        self.total_frames = 0.0
+
+        if Sheep.image == None:
+            Sheep.image = load_image('Resource/sheep_run.png')
+
+
+    def update(self, frame_time):
+        def clamp(minimum, x, maximum):
+            return max(minimum, min(x, maximum))
+
+        self.life_time += frame_time
+        self.speed = Sheep.RUN_SPEED_PPS * frame_time
+        self.total_frames += Sheep.FRAMES_PER_ACTION * Sheep.ACTION_PER_TIME * frame_time
+        self.frame = int(self.total_frames) % 3
+
+        if (self.x < 650):
+            self.dir = 1
+            self.fy = 1
+        elif (self.x > 1300):
+            self.dir = -1
+            self.fy = 0
+
+        self.x += (self.dir * self.speed)
+
+    def draw(self):
+        self.image.clip_draw(self.frame * 100, self.fy* 65, 100, 65, self.x, self.y)
+
+    def draw_bb(self):
+        draw_rectangle(*self.get_bb())
+
+    def get_bb(self):
+        return self.x - 50, self.y - 30, self.x + 35, self.y + 50
+
+    def handle_event(self, event):
+        pass
+
+
+
+
+
+
