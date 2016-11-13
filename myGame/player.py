@@ -1,7 +1,9 @@
 import random
 
-from bullet import *
 from pico2d import *
+from bullet import Bullet
+
+bullet = None
 
 class Player:
     PIXEL_PER_METER = (10.0 / 0.3)           # 10 pixel 30 cm
@@ -16,6 +18,8 @@ class Player:
 
     image = None
     jump = None
+    attack = None
+
     R_STAND, R_WALK, L_STAND, L_WALK = 0, 1, 2, 3
 
     def __init__(self):
@@ -33,16 +37,20 @@ class Player:
         self.j_time = 0
         self.b_jump = False
         self.frame_jump = 0
-
+        # attack
+        self.a_time = 0
+        self.b_attack = False
+        self.frame_attack = 0
+        # portal
+        self.next = False
         if Player.image == None:
             Player.image = load_image('Resource/moving.png')
         if Player.jump == None:
             Player.jump = load_image('Resource/jump.png')
+        if Player.attack == None:
+            Player.attack = load_image('Resource/attack.png')
 
     def update(self, frame_time):
-        def clamp(minimum, x, maximum):
-            return max(minimum, min(x, maximum))
-
         self.life_time += frame_time
         self.speed = Player.RUN_SPEED_PPS * frame_time
         self.total_frames += Player.FRAMES_PER_ACTION * Player.ACTION_PER_TIME * frame_time
@@ -58,13 +66,22 @@ class Player:
                 self.y = self.fy
             else: # 중력 적용
                 self.y += -9 + (0.98) / 2
+                # attack
+        if self.b_attack == True:
+            self.a_time += frame_time
+            if self.a_time >= 0.5:
+                self.a_time = 0
+                self.b_attack = False
 
 
     def draw(self):
         if self.b_jump == True:
             self.jump.clip_draw(0, self.frame_jump * 100, 100, 100, self.x, self.y)
+        elif self.b_attack == True:
+            self.attack.clip_draw(0, self.frame_attack * 100, 100, 100, self.x, self.y)
         else:
             self.image.clip_draw(self.frame * 100, self.state * 125, 100, 100, self.x, self.y)
+
 
     def draw_bb(self):
         draw_rectangle(*self.get_bb())
@@ -72,17 +89,22 @@ class Player:
     def get_bb(self):
         return self.x - 50, self.y - 50, self.x + 25, self.y + 50
 
+    def get_xy(self):
+        return self.x, self.y
+
     def handle_event(self, event):
         global bullet
         if (event.type, event.key) == (SDL_KEYDOWN, SDLK_LEFT):
             if self.state in (self.R_STAND, self.L_STAND, self.R_WALK):
                 self.state = self.L_WALK
                 self.dir = -1
+                self.frame_attack = 1
                 self.frame_jump = 1
         elif (event.type, event.key) == (SDL_KEYDOWN, SDLK_RIGHT):
             if self.state in (self.R_STAND, self.L_STAND, self.L_WALK):
                 self.state = self.R_WALK
                 self.dir = 1
+                self.frame_attack = 0
                 self.frame_jump = 0
         elif (event.type, event.key) == (SDL_KEYUP, SDLK_LEFT):
             if self.state in (self.L_WALK,):
@@ -93,9 +115,15 @@ class Player:
                 self.state = self.R_STAND
                 self.dir = 0
         elif (event.type, event.key) == (SDL_KEYDOWN, SDLK_z):
-                self.b_jump = True
+            self.b_jump = True
         elif (event.type, event.key) == (SDL_KEYDOWN, SDLK_x):
-                bullet.shot = True
+            self.b_attack = True
+        elif (event.type, event.key) == (SDL_KEYUP, SDLK_x):
+            self.b_attack = False
+        elif (event.type, event.key) == (SDL_KEYDOWN, SDLK_UP):
+            self.next = True
+
+
 
 
 

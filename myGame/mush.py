@@ -1,8 +1,8 @@
 import random
-
 from pico2d import *
-
-class Sheep:
+from player import *
+player = None
+class Mush:
     PIXEL_PER_METER = (10.0 / 0.3)           # 10 pixel 30 cm
     RUN_SPEED_KMPH = 20.0                    # Km / Hour
     RUN_SPEED_MPM = (RUN_SPEED_KMPH * 1000.0 / 60.0)
@@ -18,7 +18,7 @@ class Sheep:
     hit = None
 
     def __init__(self):
-        self.x, self.y = random.randint(900, 1300), 200
+        self.x, self.y = random.randint(130, 850), 110
         self.frame = 0
         self.dir = -1
         self.fy = 0
@@ -33,27 +33,30 @@ class Sheep:
         self.hit = False
         self.frame_hit = 0
 
-        if Sheep.image == None:
-            Sheep.image = load_image('Resource/sheep_run.png')
-        if Sheep.die == None:
-            Sheep.die = load_image('Resource/sheep_die.png')
-        if Sheep.hit == None:
-            Sheep.die = load_image('Resource/sheep_hit.png')
+        if Mush.image == None:
+            Mush.image = load_image('Resource/mush_run.png')
+        if Mush.die == None:
+            Mush.die = load_image('Resource/sheep_die.png')
+        if Mush.hit == None:
+            Mush.die = load_image('Resource/sheep_hit.png')
 
     def update(self, frame_time):
+        global player
+        player = Player()
+        player.x, player.y = player.get_xy()
         def clamp(minimum, x, maximum):
             return max(minimum, min(x, maximum))
 
         self.life_time += frame_time
-        self.speed = Sheep.RUN_SPEED_PPS * frame_time
-        self.total_frames += Sheep.FRAMES_PER_ACTION * Sheep.ACTION_PER_TIME * frame_time
-        self.frame = int(self.total_frames) % 3
+        self.speed = Mush.RUN_SPEED_PPS * frame_time
+        self.total_frames += Mush.FRAMES_PER_ACTION * Mush.ACTION_PER_TIME * frame_time
+        self.frame = int(self.total_frames) % 4
         self.die_frame = int(self.total_die) % 5
 
-        if (self.x < 650):
+        if (self.x < 180) :
             self.dir = 1
             self.fy = 1
-        elif (self.x > 1300):
+        elif (self.x > 900)  :
             self.dir = -1
             self.fy = 0
 
@@ -65,7 +68,7 @@ class Sheep:
         elif self.hit == True:
             self.hit.clip_draw(0, self.frame_hit * 100, 100, 100, self.x, self.y)
         else:
-            self.image.clip_draw(self.frame * 100, self.fy* 65, 100, 65, self.x, self.y)
+            self.image.clip_draw(self.frame * 100, self.fy* 80, 100, 65, self.x, self.y)
 
     def draw_bb(self):
         draw_rectangle(*self.get_bb())
