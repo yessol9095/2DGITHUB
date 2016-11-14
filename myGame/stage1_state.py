@@ -185,8 +185,10 @@ def update(frame_time):
     for sheep in sheeps:
         for bullet in bullets:
             if Sheep_collide(bullet, sheep):
-                sheeps.remove(sheep)
+                sheep.death()
                 bullets.remove(bullet)
+            if sheep.life_flag == False:
+                sheep.remove()
     portal.update(frame_time)
     pass
 
