@@ -18,6 +18,7 @@ background = None
 sheeps = None
 bullets = None
 portal = None
+bgm_sound = None
 
 class Portal:
     TIME_PER_ACTION = 0.5
@@ -77,13 +78,17 @@ class Background:
         self.image.clip_draw(0, 0, 2048, 600, self.bx, self.by)
 
 def create_world():
-    global player, tile, background, sheeps, bullets, portal
+    global player, tile, background, sheeps, bullets, portal, bgm_sound
     portal = Portal()
     player = Player()
     tile = Tile()
     background = Background()
-    sheeps = [Sheep() for i in range(10)]
+    sheeps = [Sheep() for i in range(5)]
     bullets = list()
+    if bgm_sound == None:
+        bgm_sound = load_music("Resource/stage1.mp3")
+        bgm_sound.set_volume(64)
+        bgm_sound.repeat_play()
 
 
 
@@ -188,7 +193,8 @@ def update(frame_time):
                 sheep.death()
                 bullets.remove(bullet)
             if sheep.life_flag == False:
-                sheep.remove()
+                sheeps.remove(sheep)
+
     portal.update(frame_time)
     pass
 

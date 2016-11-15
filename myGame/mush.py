@@ -2,6 +2,7 @@ import random
 from pico2d import *
 from player import *
 player = None
+
 class Mush:
     PIXEL_PER_METER = (10.0 / 0.3)           # 10 pixel 30 cm
     RUN_SPEED_KMPH = 20.0                    # Km / Hour
@@ -53,7 +54,7 @@ class Mush:
         self.frame = int(self.total_frames) % 4
         self.die_frame = int(self.total_die) % 5
 
-        if (self.x < 180) :
+        if (self.x < 200) :
             self.dir = 1
             self.fy = 1
         elif (self.x > 900)  :

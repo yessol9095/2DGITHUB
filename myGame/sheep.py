@@ -4,7 +4,7 @@ from pico2d import *
 
 class Sheep:
     PIXEL_PER_METER = (10.0 / 0.3)           # 10 pixel 30 cm
-    RUN_SPEED_KMPH = 20.0                    # Km / Hour
+    RUN_SPEED_KMPH = 15.0                    # Km / Hour
     RUN_SPEED_MPM = (RUN_SPEED_KMPH * 1000.0 / 60.0)
     RUN_SPEED_MPS = (RUN_SPEED_MPM / 60.0)
     RUN_SPEED_PPS = (RUN_SPEED_MPS * PIXEL_PER_METER)
@@ -42,10 +42,8 @@ class Sheep:
         if Sheep.die == None:
             Sheep.die = load_image('Resource/sheep_die.png')
         if Sheep.hit == None:
-            Sheep.die = load_image('Resource/sheep_hit.png')
+            Sheep.hit = load_image('Resource/sheep_hit.png')
 
-    def death(self):
-        self.s_die = True
 
     def update(self, frame_time):
         def clamp(minimum, x, maximum):
@@ -55,10 +53,15 @@ class Sheep:
         self.speed = Sheep.RUN_SPEED_PPS * frame_time
         self.total_frames += Sheep.FRAMES_PER_ACTION * Sheep.ACTION_PER_TIME * frame_time
         self.frame = int(self.total_frames) % 3
+        self.die_frame = int(self.total_die) % 5
+
+        if self.s_die == False:
+            self.x += frame_time * self.RUN_SPEED_PPS * self.dir
+
         if self.s_die == True:
             self.d_time += frame_time
             self.total_die += Sheep.FRAMES_PER_DIE * Sheep.ACTION_PER_TIME * frame_time
-            if self.d_time >= 0.8:
+            if self.d_time >= 0.3:
                 self.life_flag = False
                 self.d_time = 0
 
@@ -70,6 +73,9 @@ class Sheep:
             self.fy = 0
 
         self.x += (self.dir * self.speed)
+
+    def death(self):
+        self.s_die = True
 
     def draw(self):
         if self.s_die == True:
