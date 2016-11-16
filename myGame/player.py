@@ -18,7 +18,6 @@ class Player:
 
     image = None
     jump = None
-    jump_sound = None
     attack = None
 
     R_STAND, R_WALK, L_STAND, L_WALK = 0, 1, 2, 3
@@ -50,10 +49,6 @@ class Player:
             Player.jump = load_image('Resource/jump.png')
         if Player.attack == None:
             Player.attack = load_image('Resource/attack.png')
-
-        if Player.jump_sound == None:
-            Player.jump_sound = load_wav("Resource/jump.wav")
-            Player.jump_sound.set_volume(62)
 
     def update(self, frame_time):
         self.life_time += frame_time
@@ -121,7 +116,6 @@ class Player:
                 self.dir = 0
         elif (event.type, event.key) == (SDL_KEYDOWN, SDLK_z):
             self.b_jump = True
-            self.jump_sound.play()
         elif (event.type, event.key) == (SDL_KEYDOWN, SDLK_x):
             self.b_attack = True
         elif (event.type, event.key) == (SDL_KEYUP, SDLK_x):

@@ -10,7 +10,7 @@ class GameState:
         self.resume = state.resume
         self.handle_events = state.handle_events
         self.update = state.update
-        self.draw = state.drawxx
+        self.draw = state.draw
 
 
 class TestGameState:
