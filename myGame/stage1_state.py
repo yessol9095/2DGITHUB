@@ -82,7 +82,7 @@ def create_world():
     player = Player()
     tile = Tile()
     background = Background()
-    sheeps = [Sheep() for i in range(10)]
+    sheeps = [Sheep() for i in range(1)]
     bullets = list()
 
 
@@ -188,7 +188,7 @@ def update(frame_time):
                 sheep.death()
                 bullets.remove(bullet)
             if sheep.life_flag == False:
-                sheep.remove()
+                sheeps.remove(sheep)
     portal.update(frame_time)
     pass
 

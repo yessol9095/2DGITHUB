@@ -42,7 +42,7 @@ class Sheep:
         if Sheep.die == None:
             Sheep.die = load_image('Resource/sheep_die.png')
         if Sheep.hit == None:
-            Sheep.die = load_image('Resource/sheep_hit.png')
+            Sheep.hit = load_image('Resource/sheep_hit.png')
 
     def death(self):
         self.s_die = True
