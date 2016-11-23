@@ -109,7 +109,7 @@ def shooting():
     bullets.append(Bullet(player.x,player.y,player.state))
 
 def enter():
-    open_canvas(1500,600)
+    clear_canvas()
     game_framework.reset_time()
     create_world()
 

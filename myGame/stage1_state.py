@@ -67,7 +67,7 @@ class Tile:
         return 510, 0, 600, 100
 
     def get_dd(self):
-        return 600, 0, 1500, 160
+        return 600, 0, 1400, 160
 
 class Background:
     def __init__(self):
@@ -83,7 +83,7 @@ def create_world():
     player = Player()
     tile = Tile()
     background = Background()
-    sheeps = [Sheep() for i in range(1)]
+    sheeps = [Sheep() for i in range(10)]
     bullets = list()
 
 
@@ -96,6 +96,7 @@ def destroy_world():
     del(tile)
     del(portal)
     del(sheeps)
+
 
 def shooting():
     global bullets
@@ -118,7 +119,7 @@ def handle_events(frame_time):
             if player.b_attack == True:
                 shooting()
             if player.next == True and Portal_collide(player, portal):
-                game_framework.change_state(stage2_state)
+                game_framework.push_state(stage2_state)
 
 
 
@@ -139,9 +140,9 @@ def Map_collide(a, b):
     if right_a < left_b + 5  and bottom_a==110: return 3
 
     left_b, bottom_b, right_b, top_b = b.get_dd()
-    if right_a > right_b  and bottom_a == 170  : return 1
-    if right_a < right_b and right_a > left_b + 5 and bottom_a > top_b: return 4
-    if right_a < left_b + 5  and bottom_a==170: return 5
+    if right_a > right_b  and bottom_a == 160  : return 1
+    if right_a < right_b and right_a > left_b + 5 and bottom_a > top_b and left_a < left_b: return 4
+    if right_a < left_b + 5  and bottom_a == 160: return 5
 
 def Sheep_collide(a, b):
     left_a, bottom_a, right_a, top_a = a.get_bb()
@@ -170,14 +171,18 @@ def update(frame_time):
     if Map_collide(player, tile)==1:
         player.dir = 0
     if Map_collide(player, tile) == 2:
-        player.y = player.fy = 160
+        player.y = player.fy = 110 + 50
+        print(player.y)
+        print(player.fy)
     if Map_collide(player, tile) == 3:
-        player.y = player.fy = 90
+        player.y = player.fy = 40 + 50
         player.x -= 3
     if Map_collide(player, tile) == 4:
-        player.y = player.fy = 220
+        player.y = player.fy = 160 + 50
+        print(player.y)
+        print(player.fy)
     if Map_collide(player, tile) == 5:
-        player.y = player.fy = 160
+        player.y = player.fy = 110 + 50
         player.x -= 3
     for sheep in sheeps:
         sheep.update(frame_time)

@@ -5,4 +5,4 @@ import stage2_state
 # fill here
 import start_state
 # open_canvas() 넣는것이 좋다.
-game_framework.run(stage1_state)
+game_framework.run(start_state)
