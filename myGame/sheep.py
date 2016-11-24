@@ -58,7 +58,7 @@ class Sheep:
         if self.s_die == True:
             self.d_time += frame_time
             self.total_die += Sheep.FRAMES_PER_DIE * Sheep.ACTION_PER_TIME * frame_time
-            if self.d_time >= 0.5:
+            if self.d_time >= 0.8:
                 self.life_flag = False
                 self.d_time = 0
 

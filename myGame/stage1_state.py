@@ -172,8 +172,6 @@ def update(frame_time):
         player.dir = 0
     if Map_collide(player, tile) == 2:
         player.y = player.fy = 110 + 50
-        print(player.y)
-        print(player.fy)
     if Map_collide(player, tile) == 3:
         player.y = player.fy = 40 + 50
         player.x -= 3
