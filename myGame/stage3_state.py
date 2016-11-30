@@ -12,6 +12,8 @@ player = None
 tile = None
 bullets = None
 
+
+
 class Tile:
     def __init__(self):
         self.image = load_image('Resource/stage2.png')
