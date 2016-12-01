@@ -23,6 +23,8 @@ class Player:
     R_STAND, R_WALK, L_STAND, L_WALK = 0, 1, 2, 3
 
     def __init__(self):
+        self.canvas_width = get_canvas_width()
+        self.canvas_height = get_canvas_height()
         self.x, self.y = 100, 90
         self.frame = 0
         self.fy = 90
@@ -51,6 +53,9 @@ class Player:
             Player.attack = load_image('Resource/attack.png')
 
     def update(self, frame_time):
+        def clamp(minimum, x, maximum):
+            return max(minimum, min(x, maximum))
+
         self.life_time += frame_time
         self.speed = Player.RUN_SPEED_PPS * frame_time
         self.total_frames += Player.FRAMES_PER_ACTION * Player.ACTION_PER_TIME * frame_time
@@ -73,10 +78,16 @@ class Player:
                 self.a_time = 0
                 self.b_attack = False
 
+    def set_floor(self, fl):
+        self.fl = fl
 
     def draw(self):
+        x_left_offset = min(0, self.x - self.canvas_width // 2)
+        x_right_offset = max(0, self.x - self.fl.w + self.canvas_width // 2)
+        x_offset = x_left_offset + x_right_offset
+
         if self.b_jump == True:
-            self.jump.clip_draw(0, self.frame_jump * 100, 100, 100, self.x, self.y)
+            self.jump.clip_draw(0, self.frame_jump * 100, 100, 100, self.canvas_width//2+x_offset, self.y)
         elif self.b_attack == True:
             self.attack.clip_draw(0, self.frame_attack * 100, 100, 100, self.x, self.y)
         else:
