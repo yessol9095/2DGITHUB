@@ -9,8 +9,6 @@ import game_framework
 import title_state
 import stage2_state
 
-
-
 from player import Player
 from sheep import Sheep
 
@@ -58,10 +56,17 @@ class Portal:
         return 3745 + sx, 160, 3800 + sx, 185
 
 class Tile:
+    TIME_PER_ACTION = 0.8
+    ACTION_PER_TIME = 1.0 / TIME_PER_ACTION
+    FRAMES_PER_ACTION = 5
+
     def __init__(self):
         self.image = load_image('Resource/stage1.png')
         self.tx = 750
         self.ty = 300
+
+    def set_center_object(self, player):
+        self.set_center_object = player
 
     def draw(self):
         self.image.clip_draw(0, 0, 1500, 600, self.tx, self.ty)
@@ -81,32 +86,43 @@ class Tile:
         return 600, 0, 1400, 160
 
 class Background:
-    PIXEL_PER_METER = (10.0 / 0.3)  # 10 pixel 30 cm
-    SCROLL_SPEED_KMPH = 10.0  # Km / Hour
-    SCROLL_SPEED_MPM = (SCROLL_SPEED_KMPH * 1000.0 / 60.0)
-    SCROLL_SPEED_MPS = (SCROLL_SPEED_MPM / 60.0)
-    SCROLL_SPEED_PPS = (SCROLL_SPEED_MPS * PIXEL_PER_METER)
 
-    def __init__(self,w,h):
+
+    def __init__(self):
         self.image = load_image('Resource/Background.png')
         self.speed = 0
         self.left = 0
         self.height = 95
-        self.screen_width = w
-        self.screen_height = h
+        self.canvas_width = get_canvas_width()
+        self.canvas_height = get_canvas_height()
+        self.w = self.image.w
+        self.h = self.image.h
+
+    def set_center_object(self, player):
+        # fill here
+        self.center_object = player
 
     def draw(self):
-        x = int(self.left)
-        w = min(self.image.w - x, self.screen_width)
-        self.image.clip_draw_to_origin(x, 0, w, self.screen_height, 0, 0)
-        self.image.clip_draw_to_origin(0, 0, self.screen_width - w, self.screen_height, w, 0)
+        self.image.clip_draw_to_origin(
+            self.window_left, self.window_bottom,
+            self.canvas_width, self.canvas_height,
+            0, 0)
 
+    def update(self, frame_time):
+        # fill here
+        self.window_left = clamp(0,
+                                 int(self.center_object.x) - self.canvas_width // 2,
+                                 self.w - self.canvas_width)
+    def handle_event(self, event):
+        pass
 def create_world():
     global player, tile, background, sheeps, bullets, portal
     portal = Portal()
     player = Player()
     tile = Tile()
     background = Background()
+    background.set_center_object(player)
+    player.set_background(background)
     sheeps = [Sheep() for i in range(10)]
     bullets = list()
 
@@ -127,11 +143,11 @@ def shooting():
     bullets.append(Bullet(player.x,player.y,player.state))
 
 def enter():
-    open_canvas(1500,600)
+    open_canvas(800,600)
     game_framework.reset_time()
     create_world()
 
-def handle_events(self,frame_time):
+def handle_events(self, frame_time):
     events = get_events()
     for event in events:
         if event.type == SDL_QUIT:
@@ -140,20 +156,12 @@ def handle_events(self,frame_time):
             game_framework.quit()
         else:
             player.handle_event(event)
+            background.handle_event(event)
             if player.b_attack == True:
                 shooting()
             if player.next == True and Portal_collide(player, portal):
                 game_framework.push_state(stage2_state)
-    if event.type == SDL_KEYDOWN:
-        if event.key == SDLK_LEFT:
-            self.speed -= Background.SCROLL_SPEED_PPS
-        elif event.key == SDLK_RIGHT:
-            self.speed += Background.SCROLL_SPEED_PPS
-    if event.type == SDL_KEYUP:
-        if event.key == SDLK_LEFT:
-            self.speed += Background.SCROLL_SPEED_PPS
-        elif event.key == SDLK_RIGHT:
-            self.speed -= Background.SCROLL_SPEED_PPS
+
 
 
 
@@ -204,6 +212,7 @@ def Portal_collide(a, b):
 def update(self,frame_time):
     self.left = (self.left + frame_time * self.speed) % self.image.w
     player.update(frame_time)
+    background.update(frame_time)
     if Map_collide(player, tile)==1:
         player.dir = 0
     if Map_collide(player, tile) == 2:

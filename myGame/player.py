@@ -52,6 +52,9 @@ class Player:
         if Player.attack == None:
             Player.attack = load_image('Resource/attack.png')
 
+    def set_background(self, bg):
+        self.bg = bg
+
     def update(self, frame_time):
         def clamp(minimum, x, maximum):
             return max(minimum, min(x, maximum))
@@ -61,6 +64,7 @@ class Player:
         self.total_frames += Player.FRAMES_PER_ACTION * Player.ACTION_PER_TIME * frame_time
         self.frame = int(self.total_frames) % 4
         self.x += (self.dir * self.speed)
+        self.x = clamp(25, self.x, self.bg.w - 25)
         #jump
         if self.b_jump == True:
             self.j_time += 0.1
@@ -78,27 +82,27 @@ class Player:
                 self.a_time = 0
                 self.b_attack = False
 
-    def set_floor(self, fl):
-        self.fl = fl
+
 
     def draw(self):
-        x_left_offset = min(0, self.x - self.canvas_width // 2)
-        x_right_offset = max(0, self.x - self.fl.w + self.canvas_width // 2)
-        x_offset = x_left_offset + x_right_offset
+        sx = self.x - self.bg.window_left
+        sy = self.y - self.bg.window_bottom
 
         if self.b_jump == True:
-            self.jump.clip_draw(0, self.frame_jump * 100, 100, 100, self.canvas_width//2+x_offset, self.y)
+            self.jump.clip_draw(0, self.frame_jump * 100, 100, 100, sx, sy)
         elif self.b_attack == True:
-            self.attack.clip_draw(0, self.frame_attack * 100, 100, 100, self.x, self.y)
+            self.attack.clip_draw(0, self.frame_attack * 100, 100, 100, sx, sy)
         else:
-            self.image.clip_draw(self.frame * 100, self.state * 125, 100, 100, self.x, self.y)
+            self.image.clip_draw(self.frame * 100, self.state * 125, 100, 100, sx, sy)
 
+    def place(self):
+        return self.sx, self.sy
 
     def draw_bb(self):
         draw_rectangle(*self.get_bb())
 
     def get_bb(self):
-        return self.x - 50, self.y - 50, self.x + 25, self.y + 50
+        return self.x - 50, self.y - 50, self.x + 50, self.y + 50
 
     def get_xy(self):
         return self.x, self.y
