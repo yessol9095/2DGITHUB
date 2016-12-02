@@ -32,28 +32,20 @@ class Portal:
         self.px = 1300
         self.py = 200
         #
-        self.canvas_width = get_canvas_width()
-        self.canvas_height = get_canvas_height()
-        self.w = self.image.w
-        self.h = self.image.h
-        #
         self.total_frames = 0
         self.frame = 0
         self.next = None
     def update(self, frame_time):
         self.total_frames += Portal.FRAMES_PER_ACTION * Portal.ACTION_PER_TIME * frame_time
         self.frame = int(self.total_frames) % 5
-        self.left = clamp(0, int(self.set_center_object.x) - self.canvas_width // 2, self.w - self.canvas_width)
     def draw(self):
-        sx = self.x - self.left
-        self.portal.clip_draw(self.frame * 125, 0, 125, 75, sx + 3775, 185)
+        self.portal.clip_draw(self.frame * 125, 0, 125, 75, self.px, self.py)
 
     def draw_bb(self):
         draw_rectangle(*self.get_bb())
 
     def get_bb(self):
-        sx = self.x - self.left
-        return 3745 + sx, 160, 3800 + sx, 185
+        return self.px-25,self.py - 25, self.px + 25, self.py + 25
 
 class Tile:
     TIME_PER_ACTION = 0.8
@@ -64,9 +56,6 @@ class Tile:
         self.image = load_image('Resource/stage1.png')
         self.tx = 750
         self.ty = 300
-
-    def set_center_object(self, player):
-        self.set_center_object = player
 
     def draw(self):
         self.image.clip_draw(0, 0, 1500, 600, self.tx, self.ty)
@@ -93,36 +82,23 @@ class Background:
         self.speed = 0
         self.left = 0
         self.height = 95
-        self.canvas_width = get_canvas_width()
-        self.canvas_height = get_canvas_height()
-        self.w = self.image.w
-        self.h = self.image.h
 
-    def set_center_object(self, player):
-        # fill here
-        self.center_object = player
 
     def draw(self):
-        self.image.clip_draw_to_origin(
-            self.window_left, self.window_bottom,
-            self.canvas_width, self.canvas_height,
-            0, 0)
+        self.portal.clip_draw(0, 0, 1500, 600, self.tx, self.ty)
 
     def update(self, frame_time):
         # fill here
-        self.window_left = clamp(0,
-                                 int(self.center_object.x) - self.canvas_width // 2,
-                                 self.w - self.canvas_width)
-    def handle_event(self, event):
         pass
+    #def handle_event(self, event):
+       # pass
 def create_world():
     global player, tile, background, sheeps, bullets, portal
     portal = Portal()
     player = Player()
     tile = Tile()
     background = Background()
-    background.set_center_object(player)
-    player.set_background(background)
+
     sheeps = [Sheep() for i in range(10)]
     bullets = list()
 
@@ -143,11 +119,11 @@ def shooting():
     bullets.append(Bullet(player.x,player.y,player.state))
 
 def enter():
-    open_canvas(800,600)
+    open_canvas(1500,600)
     game_framework.reset_time()
     create_world()
 
-def handle_events(self, frame_time):
+def handle_events(self, event):
     events = get_events()
     for event in events:
         if event.type == SDL_QUIT:
@@ -156,7 +132,6 @@ def handle_events(self, frame_time):
             game_framework.quit()
         else:
             player.handle_event(event)
-            background.handle_event(event)
             if player.b_attack == True:
                 shooting()
             if player.next == True and Portal_collide(player, portal):
@@ -209,7 +184,7 @@ def Portal_collide(a, b):
 
     return True
 
-def update(self,frame_time):
+def update(self, frame_time):
     self.left = (self.left + frame_time * self.speed) % self.image.w
     player.update(frame_time)
     background.update(frame_time)

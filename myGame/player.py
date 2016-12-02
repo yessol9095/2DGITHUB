@@ -23,8 +23,7 @@ class Player:
     R_STAND, R_WALK, L_STAND, L_WALK = 0, 1, 2, 3
 
     def __init__(self):
-        self.canvas_width = get_canvas_width()
-        self.canvas_height = get_canvas_height()
+
         self.x, self.y = 100, 90
         self.frame = 0
         self.fy = 90
@@ -64,7 +63,7 @@ class Player:
         self.total_frames += Player.FRAMES_PER_ACTION * Player.ACTION_PER_TIME * frame_time
         self.frame = int(self.total_frames) % 4
         self.x += (self.dir * self.speed)
-        self.x = clamp(25, self.x, self.bg.w - 25)
+
         #jump
         if self.b_jump == True:
             self.j_time += 0.1
@@ -85,18 +84,16 @@ class Player:
 
 
     def draw(self):
-        sx = self.x - self.bg.window_left
-        sy = self.y - self.bg.window_bottom
 
         if self.b_jump == True:
-            self.jump.clip_draw(0, self.frame_jump * 100, 100, 100, sx, sy)
+            self.jump.clip_draw(0, self.frame_jump * 100, 100, 100, self.x, self.y)
         elif self.b_attack == True:
-            self.attack.clip_draw(0, self.frame_attack * 100, 100, 100, sx, sy)
+            self.attack.clip_draw(0, self.frame_attack * 100, 100, 100,self.x, self.y)
         else:
-            self.image.clip_draw(self.frame * 100, self.state * 125, 100, 100, sx, sy)
+            self.image.clip_draw(self.frame * 100, self.state * 125, 100, 100, self.x, self.y)
 
     def place(self):
-        return self.sx, self.sy
+        return self.x, self.y
 
     def draw_bb(self):
         draw_rectangle(*self.get_bb())
