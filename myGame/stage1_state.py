@@ -14,8 +14,6 @@ from player import Player
 from sheep import Sheep
 
 
-
-
 player = None
 tile = None
 background = None
