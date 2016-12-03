@@ -1,6 +1,7 @@
 import random
 import json
 import os
+import temp
 from pico2d import *
 from bullet import *
 
@@ -38,13 +39,13 @@ class Portal:
         self.total_frames += Portal.FRAMES_PER_ACTION * Portal.ACTION_PER_TIME * frame_time
         self.frame = int(self.total_frames) % 5
     def draw(self):
-        self.portal.clip_draw(self.frame * 125, 0, 125, 75, self.px, self.py)
+        self.image.clip_draw(self.frame * 125, 0, 125, 75, self.px, self.py)
 
     def draw_bb(self):
         draw_rectangle(*self.get_bb())
 
     def get_bb(self):
-        return self.px-25,self.py - 25, self.px + 25, self.py + 25
+        return self.px-30,self.py - 35, self.px +30, self.py + 25
 
 class Tile:
     TIME_PER_ACTION = 0.8
@@ -79,12 +80,12 @@ class Background:
     def __init__(self):
         self.image = load_image('Resource/Background.png')
         self.speed = 0
-        self.left = 0
-        self.height = 95
+        self.bx = 1024
+        self.by = 300
 
 
     def draw(self):
-        self.portal.clip_draw(0, 0, 1500, 600, self.tx, self.ty)
+        self.image.clip_draw(0, 0, 2048, 600, self.bx, self.by)
 
     def update(self, frame_time):
         # fill here
@@ -98,7 +99,7 @@ def create_world():
     tile = Tile()
     background = Background()
 
-    sheeps = [Sheep() for i in range(10)]
+    sheeps = [Sheep() for i in range(5)]
     bullets = list()
 
 
@@ -122,7 +123,7 @@ def enter():
     game_framework.reset_time()
     create_world()
 
-def handle_events(self, event):
+def handle_events(frame_time):
     events = get_events()
     for event in events:
         if event.type == SDL_QUIT:
@@ -134,6 +135,7 @@ def handle_events(self, event):
             if player.b_attack == True:
                 shooting()
             if player.next == True and Portal_collide(player, portal):
+                temp.player_life = player.life
                 game_framework.push_state(stage2_state)
 
 
@@ -183,35 +185,47 @@ def Portal_collide(a, b):
 
     return True
 
-def update(self, frame_time):
-    self.left = (self.left + frame_time * self.speed) % self.image.w
+def update(frame_time):
     player.update(frame_time)
-    background.update(frame_time)
+
     if Map_collide(player, tile)==1:
         player.dir = 0
+
     if Map_collide(player, tile) == 2:
         player.y = player.fy = 110 + 50
+
     if Map_collide(player, tile) == 3:
         player.y = player.fy = 40 + 50
         player.x -= 3
+
     if Map_collide(player, tile) == 4:
         player.y = player.fy = 160 + 50
-        print(player.y)
-        print(player.fy)
+
     if Map_collide(player, tile) == 5:
         player.y = player.fy = 110 + 50
         player.x -= 3
+
     for sheep in sheeps:
         sheep.update(frame_time)
+        if player.b_death == False:
+            if Sheep_collide(player, sheep):
+                player.die()
+
     for bullet in bullets:
         bullet.update(frame_time)
+
     for sheep in sheeps:
         for bullet in bullets:
-            if Sheep_collide(bullet, sheep):
-                sheep.death()
-                bullets.remove(bullet)
-            if sheep.life_flag == False:
+            if sheep.life_flag == True:
+                if Sheep_collide(bullet, sheep):
+                    sheep.hurt()
+                    if bullets.count(bullet) > 0:
+                        bullets.remove(bullet)
+                if sheep.hp <= 0:
+                    sheep.death()
+            elif sheep.life_flag == False:
                 sheeps.remove(sheep)
+
     portal.update(frame_time)
     pass
 

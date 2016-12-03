@@ -19,14 +19,18 @@ class Player:
     image = None
     jump = None
     attack = None
+    hp_title= None
+    hp = None
 
     R_STAND, R_WALK, L_STAND, L_WALK = 0, 1, 2, 3
 
     def __init__(self):
-
         self.x, self.y = 100, 90
         self.frame = 0
         self.fy = 90
+        #
+        self.life = 5
+        self.b_death = False
         #
         self.py = 0
         self.life_time = 0.0
@@ -50,6 +54,11 @@ class Player:
             Player.jump = load_image('Resource/jump.png')
         if Player.attack == None:
             Player.attack = load_image('Resource/attack.png')
+        if Player.hp_title == None:
+            Player.hp_title = load_image('Resource/Hp_Title.png')
+        if Player.hp == None:
+            Player.hp = load_image('Resource/Hp.png')
+
 
     def set_background(self, bg):
         self.bg = bg
@@ -81,7 +90,9 @@ class Player:
                 self.a_time = 0
                 self.b_attack = False
 
-
+    def die(self):
+        self.life -= 1
+        self.b_death = True
 
     def draw(self):
 
@@ -91,6 +102,8 @@ class Player:
             self.attack.clip_draw(0, self.frame_attack * 100, 100, 100,self.x, self.y)
         else:
             self.image.clip_draw(self.frame * 100, self.state * 125, 100, 100, self.x, self.y)
+        self.hp_title.clip_draw(0, 0, 244, 35, 150, 550 )
+        self.hp.clip_draw(0, 0 , self.life * 30, 25, 150, 550)
 
     def place(self):
         return self.x, self.y
@@ -99,7 +112,7 @@ class Player:
         draw_rectangle(*self.get_bb())
 
     def get_bb(self):
-        return self.x - 50, self.y - 50, self.x + 50, self.y + 50
+        return self.x - 50, self.y - 50, self.x + 25, self.y + 50
 
     def get_xy(self):
         return self.x, self.y
@@ -130,6 +143,7 @@ class Player:
             self.b_jump = True
         elif (event.type, event.key) == (SDL_KEYDOWN, SDLK_x):
             self.b_attack = True
+            self.b_death = False
         elif (event.type, event.key) == (SDL_KEYUP, SDLK_x):
             self.b_attack = False
         elif (event.type, event.key) == (SDL_KEYDOWN, SDLK_UP):

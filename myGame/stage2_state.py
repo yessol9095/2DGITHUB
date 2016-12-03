@@ -1,9 +1,11 @@
 import random
 import json
 import os
+import temp
 from pico2d import *
 from bullet import *
 
+import stage1_state
 import game_framework
 import title_state
 
@@ -83,6 +85,7 @@ def create_world():
     skill = Skill()
     portal = Portal()
     player = Player()
+    player.life = temp.player_life
     tile = Tile()
     background = Background()
     bullets = list()

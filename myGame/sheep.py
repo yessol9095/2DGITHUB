@@ -4,12 +4,12 @@ from pico2d import *
 
 class Sheep:
     PIXEL_PER_METER = (10.0 / 0.3)           # 10 pixel 30 cm
-    RUN_SPEED_KMPH = 20.0                    # Km / Hour
+    RUN_SPEED_KMPH = 30.0                    # Km / Hour
     RUN_SPEED_MPM = (RUN_SPEED_KMPH * 1000.0 / 60.0)
     RUN_SPEED_MPS = (RUN_SPEED_MPM / 60.0)
     RUN_SPEED_PPS = (RUN_SPEED_MPS * PIXEL_PER_METER)
 
-    TIME_PER_ACTION = 0.5
+    TIME_PER_ACTION = 0.8
     ACTION_PER_TIME = 1.0 / TIME_PER_ACTION
     FRAMES_PER_ACTION = 3
     FRAMES_PER_DIE = 5
@@ -24,6 +24,7 @@ class Sheep:
         self.dir = -1
         self.fy = 0
         #
+        self.hp = 5
         self.life_time = 0.0
         self.total_frames = 0.0
         self.life_flag = True
@@ -36,6 +37,7 @@ class Sheep:
         #
         self.s_hit = False
         self.frame_hit = 0
+        self.h_time = 0
 
         if Sheep.image == None:
             Sheep.image = load_image('Resource/sheep_run.png')
@@ -44,8 +46,6 @@ class Sheep:
         if Sheep.hit == None:
             Sheep.hit = load_image('Resource/sheep_hit.png')
 
-    def death(self):
-        self.s_die = True
 
     def update(self, frame_time):
         def clamp(minimum, x, maximum):
@@ -55,12 +55,18 @@ class Sheep:
         self.speed = Sheep.RUN_SPEED_PPS * frame_time
         self.total_frames += Sheep.FRAMES_PER_ACTION * Sheep.ACTION_PER_TIME * frame_time
         self.frame = int(self.total_frames) % 3
+        self.die_frame = int(self.total_die) % 5
         if self.s_die == True:
             self.d_time += frame_time
             self.total_die += Sheep.FRAMES_PER_DIE * Sheep.ACTION_PER_TIME * frame_time
             if self.d_time >= 0.8:
                 self.life_flag = False
                 self.d_time = 0
+        if self.s_hit == True:
+            self.h_time += frame_time
+            if self.h_time >= 0.3:
+                self.h_time = 0
+                self.s_hit = False
 
         if (self.x < 650):
             self.dir = 1
@@ -68,14 +74,21 @@ class Sheep:
         elif (self.x > 1300):
             self.dir = -1
             self.fy = 0
+        if self.s_die == False:
+            self.x += (self.dir * self.speed)
 
-        self.x += (self.dir * self.speed)
+    def hurt(self):
+        self.s_hit = True
+        self.hp -= 1
+
+    def death(self):
+        self.s_die = True
 
     def draw(self):
         if self.s_die == True:
             self.die.clip_draw(self.die_frame * 100, self.frame_die * 65 ,100, 65, self.x,self.y)
         elif self.s_hit == True:
-            self.hit.clip_draw(0, self.frame_hit * 100, 100, 100, self.x, self.y)
+            self.hit.clip_draw(0, self.fy * 65, 100, 65, self.x, self.y)
         else:
             self.image.clip_draw(self.frame * 100, self.fy* 65, 100, 65, self.x, self.y)
 
