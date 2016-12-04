@@ -35,9 +35,11 @@ class Portal:
         self.total_frames = 0
         self.frame = 0
         self.next = None
+
     def update(self, frame_time):
         self.total_frames += Portal.FRAMES_PER_ACTION * Portal.ACTION_PER_TIME * frame_time
         self.frame = int(self.total_frames) % 5
+
     def draw(self):
         self.image.clip_draw(self.frame * 125, 0, 125, 75, self.px, self.py)
 
@@ -213,17 +215,15 @@ def update(frame_time):
 
     for bullet in bullets:
         bullet.update(frame_time)
-
-    for sheep in sheeps:
-        for bullet in bullets:
-            if sheep.life_flag == True:
-                if Sheep_collide(bullet, sheep):
+        for sheep in sheeps:
+            if sheep.s_die == False:
+                if Sheep_collide(sheep, bullet):
                     sheep.hurt()
                     if bullets.count(bullet) > 0:
                         bullets.remove(bullet)
-                if sheep.hp <= 0:
-                    sheep.death()
-            elif sheep.life_flag == False:
+                    if sheep.hp <= 0:
+                        sheep.death()
+            if sheep.life_flag == False:
                 sheeps.remove(sheep)
 
     portal.update(frame_time)

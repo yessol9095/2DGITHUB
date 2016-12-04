@@ -6,6 +6,7 @@ from pico2d import *
 from bullet import *
 
 import stage1_state
+import stage3_state
 import game_framework
 import title_state
 
@@ -127,8 +128,8 @@ def handle_events(frame_time):
             player.handle_event(event)
             if player.b_attack == True:
                 shooting()
-            #if player.next == True and Portal_collide(player, portal):
-                #game_framework.change_state(stage1_state)
+            if player.next == True and Portal_collide(player, portal):
+                game_framework.change_state(stage3_state)
 
 
 
