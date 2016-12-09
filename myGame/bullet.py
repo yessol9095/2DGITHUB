@@ -1,6 +1,7 @@
 from pico2d import*
 from bullet import *
 
+
 class Bullet:
     PIXEL_PER_METER = (10.0 / 0.3 )         # 10 pixel 30cm
     BULLET_SPEED_KMPH = 60.0                   # km / Hour
