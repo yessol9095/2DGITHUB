@@ -2,6 +2,8 @@ import random
 
 from pico2d import *
 
+
+
 class Skill:
     PIXEL_PER_METER = (10.0 / 0.3)           # 10 pixel 30 cm
     TIME_PER_ACTION = 0.5
