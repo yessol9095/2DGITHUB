@@ -143,14 +143,28 @@ def Map_collide(a, b):
     left_b, bottom_b, right_b, top_b = b.get_bb()
     if left_a < left_b and bottom_a == 160: return 1
     if left_a + 5 > right_b and bottom_a == 160 : return 2
+    if top_b < bottom_a and left_a < right_b : return 4
 
     left_b, bottom_b, right_b, top_b = b.get_cc()
     if left_a < left_b and bottom_a == 80: return 1
-    if left_a + 5 > right_b and bottom_a == 80 : return 3
+    if left_a > right_b and bottom_a == 80 : return 3
+    if top_b < bottom_a and left_a < right_b and right_b < right_a: return 5
+
 
     left_b, bottom_b, right_b, top_b = b.get_dd()
     if left_a < left_b and bottom_a == 30: return 1
     if right_a > right_b and bottom_a == 30: return 1
+
+def Mush_collide(a, b):
+    left_a, bottom_a, right_a, top_a = a.get_bb()
+    left_b, bottom_b, right_b, top_b = b.get_bb()
+
+    if left_a > right_b : return False
+    if right_a < left_b : return False
+    if top_a < bottom_b : return False
+    if bottom_a > top_b : return False
+
+    return True
 
 def Portal_collide(a, b):
     left_a, bottom_a, right_a, top_a = a.get_bb()
@@ -171,9 +185,15 @@ def update(frame_time):
     if Map_collide(player, tile) == 2:
         player.y = player.fy = 130
         player.x += 3
+    if Map_collide(player, tile) == 5:
+        player.y = player.fy = 130
+        player.x -= 1
     if Map_collide(player, tile) == 3:
         player.y = player.fy = 80
         player.x += 3
+    if Map_collide(player, tile) == 4:
+        player.y = player.fy = 210
+        player.x -= 3
 
 
     for bullet in bullets:

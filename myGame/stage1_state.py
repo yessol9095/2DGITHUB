@@ -158,13 +158,13 @@ def Map_collide(a, b):
 
     left_b, bottom_b, right_b, top_b = b.get_cc()
     if right_a > right_b  and bottom_a == 110  : return 1
-    if right_a < right_b and right_a > left_b + 5 and bottom_a > top_b: return 2
-    if right_a < left_b + 5  and bottom_a==110: return 3
+    if right_a < right_b and right_a > left_b  and bottom_a > top_b: return 2
+    if right_a < left_b  and bottom_a==110: return 3
 
     left_b, bottom_b, right_b, top_b = b.get_dd()
     if right_a > right_b  and bottom_a == 160  : return 1
-    if right_a < right_b and right_a > left_b + 5 and bottom_a > top_b and left_a < left_b: return 4
-    if right_a < left_b + 5  and bottom_a == 160: return 5
+    if right_a < right_b and right_a > left_b  and bottom_a > top_b and left_a < left_b: return 4
+    if right_a < left_b   and bottom_a == 160: return 5
 
 def Sheep_collide(a, b):
     left_a, bottom_a, right_a, top_a = a.get_bb()
