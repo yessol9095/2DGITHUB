@@ -19,8 +19,15 @@ class Player:
     image = None
     jump = None
     attack = None
+    death = None
     hp_title= None
     hp = None
+    death_screen = None
+    #sound
+    # sound
+    jump_sound = None
+    shoot_sound = None
+    die_sound = None
 
     R_STAND, R_WALK, L_STAND, L_WALK = 0, 1, 2, 3
 
@@ -31,6 +38,7 @@ class Player:
         #
         self.life = 5
         self.b_death = False
+        self.b_hp = False
         #
         self.py = 0
         self.life_time = 0.0
@@ -58,6 +66,18 @@ class Player:
             Player.hp_title = load_image('Resource/Hp_Title.png')
         if Player.hp == None:
             Player.hp = load_image('Resource/Hp.png')
+        if Player.death == None:
+            Player.death = load_image("Resource/Death.png")
+        #sound
+        if Player.jump_sound == None:
+            Player.jump_sound = load_wav("sound/jump.wav")
+            Player.jump_sound.set_volume(62)
+        if Player.shoot_sound == None:
+            Player.shoot_sound = load_wav("sound/shoot.wav")
+            Player.shoot_sound.set_volume(32)
+        if Player.die_sound == None:
+            Player.die_sound = load_wav("sound/character_die.wav")
+            Player.die_sound.set_volume(32)
 
 
     def set_background(self, bg):
@@ -89,10 +109,15 @@ class Player:
             if self.a_time >= 0.5:
                 self.a_time = 0
                 self.b_attack = False
+        #if self.life < 0 :
+            #self.b_death = True
+            #self.die_sound.play()
 
     def die(self):
-        self.life -= 1
-        self.b_death = True
+        if self.b_hp == False:
+            self.life -= 1
+            self.b_hp = True
+        #self.b_death = True
 
     def draw(self):
 
@@ -100,6 +125,8 @@ class Player:
             self.jump.clip_draw(0, self.frame_jump * 100, 100, 100, self.x, self.y)
         elif self.b_attack == True:
             self.attack.clip_draw(0, self.frame_attack * 100, 100, 100,self.x, self.y)
+        elif self.b_death == True:
+            self.death.clip_draw(0, 0, 101, 47, self.x, self.y)
         else:
             self.image.clip_draw(self.frame * 100, self.state * 125, 100, 100, self.x, self.y)
         self.hp_title.clip_draw(0, 0, 244, 35, 150, 550 )
@@ -125,12 +152,14 @@ class Player:
                 self.dir = -1
                 self.frame_attack = 1
                 self.frame_jump = 1
+                self.b_hp = False
         elif (event.type, event.key) == (SDL_KEYDOWN, SDLK_RIGHT):
             if self.state in (self.R_STAND, self.L_STAND, self.L_WALK):
                 self.state = self.R_WALK
                 self.dir = 1
                 self.frame_attack = 0
                 self.frame_jump = 0
+                self.b_hp = False
         elif (event.type, event.key) == (SDL_KEYUP, SDLK_LEFT):
             if self.state in (self.L_WALK,):
                 self.state = self.L_STAND
@@ -141,13 +170,19 @@ class Player:
                 self.dir = 0
         elif (event.type, event.key) == (SDL_KEYDOWN, SDLK_z):
             self.b_jump = True
+            self.jump_sound.play()
+            self.b_hp = False
         elif (event.type, event.key) == (SDL_KEYDOWN, SDLK_x):
             self.b_attack = True
-            self.b_death = False
+            self.shoot_sound.play()
+            self.b_hp = False
+            if self.life < 1:
+                self.life = 5
         elif (event.type, event.key) == (SDL_KEYUP, SDLK_x):
             self.b_attack = False
         elif (event.type, event.key) == (SDL_KEYDOWN, SDLK_UP):
             self.next = True
+
 
 
 

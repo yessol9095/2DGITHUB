@@ -2,6 +2,7 @@ import random
 import json
 import os
 import temp
+import gameover
 from pico2d import *
 from bullet import *
 
@@ -14,15 +15,21 @@ import stage2_state
 from player import Player
 from sheep import Sheep
 
-
-
 player = None
 tile = None
 background = None
 sheeps = None
 bullets = None
 portal = None
+bgm_sound = None
+restart = None
 
+
+class Restart:
+    def __init__(self):
+        self.image = load_image('Resource/Die.png')
+    def draw(self):
+        self.image.clip_draw(0, 0, 774, 684, 750, 300)
 class Portal:
     TIME_PER_ACTION = 0.5
     ACTION_PER_TIME = 1.0 / TIME_PER_ACTION
@@ -96,7 +103,8 @@ class Background:
     #def handle_event(self, event):
        # pass
 def create_world():
-    global player, tile, background, sheeps, bullets, portal
+    global player, tile, background, sheeps, bullets, portal,bgm_sound, restart
+    restart = Restart()
     portal = Portal()
     player = Player()
     tile = Tile()
@@ -104,6 +112,11 @@ def create_world():
 
     sheeps = [Sheep() for i in range(5)]
     bullets = list()
+
+    if bgm_sound == None:
+        bgm_sound = load_music("Sound/stage_1.mp3")
+        bgm_sound.set_volume(64)
+        bgm_sound.repeat_play()
 
 
 
@@ -188,47 +201,52 @@ def Portal_collide(a, b):
 
     return True
 
+
 def update(frame_time):
+    global restartimage
     player.update(frame_time)
+    if player.life > 0:
+        if Map_collide(player, tile)==1:
+            player.dir = 0
 
-    if Map_collide(player, tile)==1:
-        player.dir = 0
+        if Map_collide(player, tile) == 2:
+            player.y = player.fy = 110 + 50
 
-    if Map_collide(player, tile) == 2:
-        player.y = player.fy = 110 + 50
+        if Map_collide(player, tile) == 3:
+            player.y = player.fy = 40 + 50
+            player.x -= 3
 
-    if Map_collide(player, tile) == 3:
-        player.y = player.fy = 40 + 50
-        player.x -= 3
+        if Map_collide(player, tile) == 4:
+            player.y = player.fy = 160 + 50
 
-    if Map_collide(player, tile) == 4:
-        player.y = player.fy = 160 + 50
+        if Map_collide(player, tile) == 5:
+            player.y = player.fy = 110 + 50
+            player.x -= 3
 
-    if Map_collide(player, tile) == 5:
-        player.y = player.fy = 110 + 50
-        player.x -= 3
-
-    for sheep in sheeps:
-        sheep.update(frame_time)
-        if player.b_death == False:
-            if Sheep_collide(player, sheep):
-                player.die()
-
-    for bullet in bullets:
-        bullet.update(frame_time)
         for sheep in sheeps:
-            if sheep.s_die == False:
-                if Sheep_collide(sheep, bullet):
-                    sheep.hurt()
-                    if bullets.count(bullet) > 0:
-                        bullets.remove(bullet)
-                    if sheep.hp <= 0:
-                        sheep.death()
-            if sheep.life_flag == False:
-                sheeps.remove(sheep)
+            sheep.update(frame_time)
+            if player.b_death == False:
+                if Sheep_collide(player, sheep):
+                    player.die()
 
-    portal.update(frame_time)
-    pass
+        for bullet in bullets:
+            bullet.update(frame_time)
+            for sheep in sheeps:
+                if sheep.s_die == False:
+                    if Sheep_collide(sheep, bullet):
+                        sheep.hurt()
+                        if bullets.count(bullet) > 0:
+                            bullets.remove(bullet)
+                        if sheep.hp <= 0:
+                            sheep.death()
+                if sheep.life_flag == False:
+                    sheeps.remove(sheep)
+
+        portal.update(frame_time)
+
+
+
+
 
 def pause():
     pass
@@ -254,4 +272,7 @@ def draw(frame_time):
         bullet.draw()
     for bullet in bullets:
         bullet.draw_bb()
+    if player.life < 1:
+        restart.draw()
+
     update_canvas()

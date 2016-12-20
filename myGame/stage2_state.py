@@ -4,7 +4,7 @@ import os
 import temp
 from pico2d import *
 from bullet import *
-
+import gameover
 import stage1_state
 import stage3_state
 import game_framework
@@ -12,15 +12,25 @@ import title_state
 
 from player import Player
 from mush import Mush
+from mush import Mushskill
 from skill import Skill
 
 skill = None
 player = None
 tile = None
 mushes = None
+mushskills = None
 bullets = None
 portal = None
+background = None
+restart = None
 
+
+class Restart:
+    def __init__(self):
+        self.image = load_image('Resource/Die.png')
+    def draw(self):
+        self.image.clip_draw(0, 0, 774, 684, 750, 300)
 
 class Portal:
     TIME_PER_ACTION = 0.5
@@ -81,8 +91,10 @@ class Background:
         self.image.clip_draw(0, 0, 2048, 600, self.bx, self.by)
 
 def create_world():
-    global player, tile, background, bullets, portal, mushes, skill
+    global player, tile, background, bullets, portal, mushes, skill, mushskills, restart
+    restart = Restart()
     mushes = [Mush() for i in range(5)]
+    mushskills = Mushskill()
     skill = Skill()
     portal = Portal()
     player = Player()
@@ -91,14 +103,14 @@ def create_world():
     background = Background()
     bullets = list()
     player.x, player.y = 50, 210
-    Player.image = load_image('Resource/moving.png')
-    Player.jump = load_image('Resource/jump.png')
-    Player.attack = load_image('Resource/attack.png')
+    #Player.image = None
+    #Player.jump = None
+    #Player.attack = None
 
 
 
 def destroy_world():
-    global player, background, tile, portal, mushes, skill
+    global player, background, tile, portal, mushes, skill, mushskills
 
     del(skill)
     del(player)
@@ -106,6 +118,7 @@ def destroy_world():
     del(tile)
     del(portal)
     del(mushes)
+    del(mushskills)
 
 def shooting():
     global bullets
@@ -129,7 +142,8 @@ def handle_events(frame_time):
             if player.b_attack == True:
                 shooting()
             if player.next == True and Portal_collide(player, portal):
-                game_framework.change_state(stage3_state)
+                temp.player_life = player.life
+                game_framework.push_state(stage3_state)
 
 
 
@@ -142,8 +156,8 @@ def Map_collide(a, b):
 
     left_b, bottom_b, right_b, top_b = b.get_bb()
     if left_a < left_b and bottom_a == 160: return 1
-    if left_a + 5 > right_b and bottom_a == 160 : return 2
-    if top_b < bottom_a and left_a < right_b : return 4
+    if left_a + 5 > right_b and bottom_a == 160 and right_a > right_b : return 2
+    if top_b < bottom_a and left_a < right_b and right_a > right_b: return 4
 
     left_b, bottom_b, right_b, top_b = b.get_cc()
     if left_a < left_b and bottom_a == 80: return 1
@@ -176,31 +190,97 @@ def Portal_collide(a, b):
     if bottom_a > top_b : return False
 
     return True
-
+def skill1_collide(a,b):
+    left_a,bottom_a,right_a,top_a = a.get_bb()
+    left_b,bottom_b,right_b,top_b = b.get_skill_1()
+    if left_a > right_b : return False
+    if right_a < left_b : return False
+    if top_a < bottom_b : return False
+    if bottom_a > top_b : return False
+    return True
+def skill2_collide(a,b):
+    left_a,bottom_a,right_a,top_a = a.get_bb()
+    left_b,bottom_b,right_b,top_b = b.get_skill_2()
+    if left_a > right_b : return False
+    if right_a < left_b : return False
+    if top_a < bottom_b : return False
+    if bottom_a > top_b : return False
+    return True
+def skill3_collide(a,b):
+    left_a,bottom_a,right_a,top_a = a.get_bb()
+    left_b,bottom_b,right_b,top_b = b.get_skill_3()
+    if left_a > right_b : return False
+    if right_a < left_b : return False
+    if top_a < bottom_b : return False
+    if bottom_a > top_b : return False
+    return True
+def skill4_collide(a,b):
+    left_a,bottom_a,right_a,top_a = a.get_bb()
+    left_b,bottom_b,right_b,top_b = b.get_skill_4()
+    if left_a > right_b : return False
+    if right_a < left_b : return False
+    if top_a < bottom_b : return False
+    if bottom_a > top_b : return False
+    return True
 def update(frame_time):
+    global restartimage
     player.update(frame_time)
-    skill.update(frame_time)
-    if Map_collide(player, tile) == 1:
-        player.dir = 0
-    if Map_collide(player, tile) == 2:
-        player.y = player.fy = 130
-        player.x += 3
-    if Map_collide(player, tile) == 5:
-        player.y = player.fy = 130
-        player.x -= 1
-    if Map_collide(player, tile) == 3:
-        player.y = player.fy = 80
-        player.x += 3
-    if Map_collide(player, tile) == 4:
-        player.y = player.fy = 210
-        player.x -= 3
+    if player.life > 0:
+        skill.update(frame_time)
+        mushskills.update(frame_time)
+        if player.b_death == False :
+            if mushskills.b_skill1 == True:
+                if mushskills.skill_time >= 0.65:
+                    if skill1_collide(player, mushskills):
+                        player.die()
+                    if skill2_collide(player, mushskills):
+                        player.die()
+                    if skill3_collide(player, mushskills):
+                        player.die()
+                    if skill4_collide(player, mushskills):
+                        player.die()
+        if Map_collide(player, tile) == 1:
+            player.dir = 0
+        if Map_collide(player, tile) == 2:
+            player.y = player.fy = 130
+            player.x += 3
+        if Map_collide(player, tile) == 5:
+            player.y = player.fy = 130
+            player.x -= 1
+        if Map_collide(player, tile) == 3:
+            player.y = player.fy = 80
+            player.x += 3
+        if Map_collide(player, tile) == 4:
+            player.y = player.fy = 210
+            player.x -= 3
 
 
-    for bullet in bullets:
-        bullet.update(frame_time)
-    for mush in mushes:
-        mush.update(frame_time)
-    portal.update(frame_time)
+
+        for mush in mushes:
+            mush.update(frame_time)
+            if player.b_death == False:
+                if Mush_collide(player, mush):
+                    player.die()
+
+        for bullet in bullets:
+            bullet.update(frame_time)
+            for mush in mushes:
+                if mush.s_die == False:
+                    if Mush_collide(mush, bullet):
+                        mush.hurt()
+                        if bullets.count(bullet) > 0:
+                            bullets.remove(bullet)
+                        if mush.hp <= 0:
+                            mush.death()
+                if mush.life_flag == False:
+                    mushes.remove(mush)
+
+        if int(get_time() % 12) == 0:
+            mushskills.summonning1()
+        if int(get_time() % 12) == 9:
+            mushskills.summonning1()
+
+        portal.update(frame_time)
     pass
 
 def pause():
@@ -219,6 +299,9 @@ def draw(frame_time):
     portal.draw_bb()
     skill.draw()
     skill.draw_bb()
+    mushskills.draw()
+    mushskills.draw_bb()
+
     for mush in mushes:
         mush.draw()
     for mush in mushes:
@@ -229,4 +312,6 @@ def draw(frame_time):
         bullet.draw_bb()
     player.draw()
     player.draw_bb()
+    if player.life < 1:
+        restart.draw()
     update_canvas()

@@ -17,6 +17,9 @@ class Sheep:
     image = None
     die = None
     hit = None
+    # sound
+    hit_sound = None
+    die_sound = None
 
     def __init__(self):
         self.x, self.y = random.randint(900, 1300), 200
@@ -45,6 +48,13 @@ class Sheep:
             Sheep.die = load_image('Resource/sheep_die.png')
         if Sheep.hit == None:
             Sheep.hit = load_image('Resource/sheep_hit.png')
+        # sound
+        if Sheep.hit_sound == None:
+            Sheep.hit_sound = load_wav("Sound/hit.wav")
+            Sheep.hit_sound.set_volume(32)
+        if Sheep.die_sound == None:
+            Sheep.die_sound = load_wav("Sound/yang_death.wav")
+            Sheep.die_sound.set_volume(32)
 
 
     def update(self, frame_time):
@@ -80,10 +90,11 @@ class Sheep:
     def hurt(self):
         self.s_hit = True
         self.hp -= 1
+        self.hit_sound.play()
 
     def death(self):
         self.s_die = True
-
+        self.die_sound.play()
     def draw(self):
         if self.s_die == True:
             self.die.clip_draw(self.die_frame * 100, self.frame_die * 65 ,100, 65, self.x,self.y)
@@ -100,6 +111,15 @@ class Sheep:
 
     def handle_event(self, event):
         pass
+
+    def reset(self):
+        image = None
+        die = None
+        hit = None
+        # sound
+        hit_sound = None
+        die_sound = None
+
 
 
 
